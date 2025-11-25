@@ -1,12 +1,7 @@
 import express from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../config/supabase.js';
 
 const router = express.Router();
-
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // GET /api/businesses - Get all available businesses
 router.get('/', async (req, res) => {

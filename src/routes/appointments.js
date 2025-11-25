@@ -1,13 +1,9 @@
 import express from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../config/supabase.js';
 import { protect } from './authMiddleware.js';
 
 const router = express.Router();
 
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // POST /api/appointments - Create a new appointment
 // This route is now protected, so only authenticated users can create an appointment.

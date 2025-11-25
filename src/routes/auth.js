@@ -1,14 +1,8 @@
 import express from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 import { protect } from './authMiddleware.js';
 
 const router = express.Router();
-
-// Initialize Supabase client
-// Make sure you have SUPABASE_URL and SUPABASE_KEY in your .env file
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY; // Use service key for admin operations
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
@@ -28,8 +22,9 @@ router.post('/login', async (req, res) => {
     const supabaseUser = sessionData.user;
 
     // 2. Fetch full user metadata (admin requires service key)
-    const { data: userRecord, error: userError } = await supabase.auth.admin.getUserById(supabaseUser.id);
+    const { data: userRecord, error: userError } = await supabaseAdmin.auth.admin.getUserById(supabaseUser.id);
     if (userError || !userRecord.user) {
+      console.error('Failed to retrieve user metadata with admin client:', userError);
       return res.status(500).json({ message: 'Failed to retrieve user metadata.' });
     }
 
@@ -63,7 +58,7 @@ router.post('/login', async (req, res) => {
 
 // POST /api/auth/signup - Create a new user
 router.post('/signup', async (req, res) => {
-  const { email, password, name, role = 'client' } = req.body; // role can be 'client' or 'business_owner'
+  const { email, password, name = '', role = 'client' } = req.body; // role can be 'client' or 'business_owner'
 
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required.' });
@@ -78,7 +73,7 @@ router.post('/signup', async (req, res) => {
       options: {
         data: {
           name,
-          role: role, // This sets the role in app_metadata
+          role, // This sets the role in app_metadata
         },
       },
     });
